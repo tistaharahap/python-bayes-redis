@@ -18,7 +18,12 @@ class BayesRedis():
     max_str_len = 2
     r = None
 
-    def __init__(self):
+    def __init__(self, args=None):
+        if args is not None:
+            self.reds['host'] = args['host']
+            self.reds['port'] = args['port']
+            self.reds['db'] = args['db']
+
         self.r = redis.StrictRedis(host=self.reds['host'], port=self.reds['port'], db=self.reds['db'])
         if self.r is None:
             raise Exception('Redis is not properly setup. Check redis configs?')
@@ -29,29 +34,25 @@ class BayesRedis():
                 self.namespace[key] = '%s-%s' % (self.namespace['global'], self.namespace[key])
 
     def classify(self, words, count=10, offset=0):
-        score = []
+        score = {}
+        psets = {}
 
         keywords = self.clean_keywords(words)
         sets = self.get_all_sets()
-        P = {
-            'sets': {}
-        }
 
         set_word_counts = self.get_set_word_count(sets)
-        word_count_from_set = self.get_word_count_from_set(words, sets)
+        word_count_from_set = self.get_word_count_from_set(keywords, sets)
 
         for set in sets:
-            for word in words:
+            for word in keywords:
                 key = "%s%s%s" % (word, self.namespace['delimiter'], set)
-                if word_count_from_set[key]:
-                    if word_count_from_set[key] > 0:
-                        P.sets[set] = P.sets[set] + (word_count_from_set[key] / set_word_counts[set])
+                if (key in word_count_from_set.keys()) and word_count_from_set[key] > 0:
+                    prob = float(word_count_from_set[key]) / float(set_word_counts[set])
+                    psets.update({set: prob})
 
-                if not math.isinf(P.sets[set]) and P.sets[set] > 0:
-                    score[set] = P.sets[set]
+                if psets.get(set) and not math.isinf(float(psets.get(set))) and psets.get(set) > 0:
+                    score[set] = psets[set]
 
-        score = sorted(score)
-        print score
         return score
 
     def add_to_blacklist(self, word):
@@ -149,15 +150,38 @@ class BayesRedis():
         return self.r.hget(self.namespace['wordcount'], self.namespace['wordcount'])
 
     def get_set_word_count(self, sets):
-        return self.r.hmget(self.namespace['sets'], sets)
+        if sets:
+            tmp = self.r.hmget(self.namespace['sets'], sets)
+            ret = {}
+            if tmp:
+                i = 0
+                for r in tmp:
+                    ret[sets[i]] = int(r)
+                    i = i + 1
+
+            return ret
+        else:
+            return 0
 
     def get_word_count_from_set(self, words, sets):
-        keys = []
-        for word in words:
-            for set in sets:
-                keys.append("%s%s%s" % (word, self.namespace['delimiter'], set))
+        if sets:
+            keys = []
+            for word in words:
+                for set in sets:
+                    keys.append("%s%s%s" % (word, self.namespace['delimiter'], set))
 
-        return self.r.hmget(self.namespace['words'], keys)
-
-bayes = BayesRedis()
-bayes.classify("Batista adalah laki-laki")
+            tmp = self.r.hmget(self.namespace['words'], keys)
+            ret = {}
+            if tmp:
+                i = 0
+                for key in keys:
+                    val = tmp[i]
+                    if val is None:
+                        val = 0
+                    else:
+                        val = int(val)
+                    ret[key] = val
+                    i = i + 1
+            return ret
+        else:
+            return {}
