@@ -8,7 +8,7 @@ class BayesRedis():
     }
     namespace = {
         'global': 'bayes-redis',
-        'blacklist': '%s-br-blacklist',
+        'blacklist': 'br-blacklist',
         'words': 'br-words',
         'sets': 'br-sets',
         'cache': 'br-cache',
