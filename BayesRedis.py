@@ -45,7 +45,6 @@ class Classifier():
             _start = time.time()
 
         score = {}
-        psets = {}
 
         _start_clean = 0.0
         _time_clean = 0.0
@@ -86,9 +85,8 @@ class Classifier():
         for set in sets:
             for word in keywords:
                 key = "%s%s%s" % (word, self.namespace['delimiter'], set)
-                if (key in word_count_from_set.keys()) and word_count_from_set[key] > 0:
+                if word_count_from_set[key] and word_count_from_set[key] > 0:
                     prob = float(word_count_from_set[key]) / float(set_word_counts[set])
-                    psets.update({set: prob})
                     if not math.isinf(prob) and prob > 0:
                         score[set] = prob
         if self.debug:
@@ -148,9 +146,7 @@ class Classifier():
         else:
             raise Exception('Can only clean String or List.');
 
-        kws = [sub("[^a-z]", "", kw.lower()) for kw in kws if kw if len(kw) > self.max_str_len]
-
-        return kws
+        return [sub("[^a-z]", "", kw.lower()) for kw in kws if kw if len(kw) > self.max_str_len]
 
     def train(self, words, set):
         words = self.clean_keywords(words)
@@ -212,14 +208,14 @@ class Classifier():
             return 0
 
     def get_word_count_from_set(self, words, sets):
+        ret = {}
         if sets:
             keys = ["%s%s%s" % (word, self.namespace['delimiter'], set) for word in words for set in sets]
             tmp = [self._none_check(v) for v in self.r.hmget(self.namespace['words'], keys)]
             ret = {key: tmp[self._next_index()] for key in keys}
             self.index = 0
-            return ret
-        else:
-            return {}
+
+        return ret
 
     def _next_index(self):
         i = self.index
