@@ -1,7 +1,8 @@
-from BayesRedis import BayesRedis
+from BayesRedis import Classifier
+import time
 
 # BayesRedis Setup
-b = BayesRedis({
+b = Classifier({
     'host': '127.0.0.1',
     'port': 6379,
     'db': 0
@@ -29,4 +30,7 @@ b.train("With Walter Mazzarri announcing his decision to stand down as Napoli co
 b.train("After a meeting with sporting director Leonardo and Paris Saint-Germain owner Al-Khellaifi, Carlo Ancelotti has decided to finish his time with the club in favour of an expected move to Real Madrid.", "psg")
 '''
 
-print b.classify("arsene wenger")
+start = time.time()
+print b.classify("steak pasta")
+end = time.time()
+print "\nElapsed Time: %s seconds" % (end - start)

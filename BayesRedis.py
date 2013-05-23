@@ -1,6 +1,7 @@
-import redis, math
+import redis, math, operator
+from re import sub
 
-class BayesRedis():
+class Classifier():
     reds = {
         'host': 'localhost',
         'port': 6379,
@@ -33,7 +34,7 @@ class BayesRedis():
             if key not in ['global', 'delimiter', 'wordcount']:
                 self.namespace[key] = '%s-%s' % (self.namespace['global'], self.namespace[key])
 
-    def classify(self, words, count=10, offset=0):
+    def classify(self, words, count=10):
         score = {}
         psets = {}
 
@@ -53,7 +54,8 @@ class BayesRedis():
                 if psets.get(set) and not math.isinf(float(psets.get(set))) and psets.get(set) > 0:
                     score[set] = psets[set]
 
-        return score
+
+        return sorted(score.iteritems(), key=operator.itemgetter(1), reverse=True)[:count]
 
     def add_to_blacklist(self, word):
         if word and isinstance(word, str):
@@ -89,7 +91,7 @@ class BayesRedis():
 
         for kw in kws:
             kw = kw.lower()
-            #kw.sub("/[^a-z]/i", "", kw)
+            kw = sub("[^a-z]", "", kw)
 
             if kw and len(kw) > self.max_str_len:
                 kw = kw.lower()
