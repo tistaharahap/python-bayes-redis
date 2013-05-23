@@ -1,4 +1,4 @@
-import redis, math, operator
+import redis, math, operator, time
 from re import sub
 
 class Classifier():
@@ -18,6 +18,9 @@ class Classifier():
     }
     max_str_len = 2
     r = None
+    index = 0
+
+    debug = True
 
     def __init__(self, args=None):
         if args is not None:
@@ -35,15 +38,51 @@ class Classifier():
                 self.namespace[key] = '%s-%s' % (self.namespace['global'], self.namespace[key])
 
     def classify(self, words, count=10):
+        _start = 0.0
+
+        if self.debug:
+            print "Debugging is enabled\n"
+            _start = time.time()
+
         score = {}
         psets = {}
 
+        _start_clean = 0.0
+        _time_clean = 0.0
+        if self.debug:
+            _start_clean = time.time()
         keywords = self.clean_keywords(words)
+        if self.debug:
+            _time_clean = time.time() - _start_clean
+
+        _start_all_sets = 0.0
+        _time_all_sets = 0.0
+        if self.debug:
+            _start_all_sets = time.time()
         sets = self.get_all_sets()
+        if self.debug:
+            _time_all_sets = time.time() - _start_all_sets
 
+        _start_set_word_count = 0.0
+        _time_set_word_count = 0.0
+        if self.debug:
+            _start_set_word_count = time.time()
         set_word_counts = self.get_set_word_count(sets)
-        word_count_from_set = self.get_word_count_from_set(keywords, sets)
+        if self.debug:
+            _time_set_word_count = time.time() - _start_set_word_count
 
+        _start_word_count_from_set = 0.0
+        _time_word_count_from_set = 0.0
+        if self.debug:
+            _start_word_count_from_set = time.time()
+        word_count_from_set = self.get_word_count_from_set(keywords, sets)
+        if self.debug:
+            _time_word_count_from_set = time.time() - _start_word_count_from_set
+
+        _start_set_loop = 0.0
+        _time_set_loop = 0.0
+        if self.debug:
+            _start_set_loop = time.time()
         for set in sets:
             for word in keywords:
                 key = "%s%s%s" % (word, self.namespace['delimiter'], set)
@@ -53,9 +92,31 @@ class Classifier():
 
                 if psets.get(set) and not math.isinf(float(psets.get(set))) and psets.get(set) > 0:
                     score[set] = psets[set]
+        if self.debug:
+            _time_set_loop = time.time() - _start_set_loop
 
+        _start_sort = 0.0
+        _time_sort = 0.0
+        if self.debug:
+            _start_sort = time.time()
+        ret = sorted(score.iteritems(), key=operator.itemgetter(1), reverse=True)[:count]
+        if self.debug:
+            _time_sort = time.time() - _start_sort
 
-        return sorted(score.iteritems(), key=operator.itemgetter(1), reverse=True)[:count]
+        _end = time.time() - _start
+
+        if self.debug:
+            print "Debug Statistics"
+            print "----------------\n"
+            print "Clean Time: %s - %.2f %%" % (_time_clean, (_time_clean/_end*100))
+            print "All Sets Time: %s - %.2f %%" % (_time_all_sets, (_time_all_sets/_end*100))
+            print "Set Word Count Time: %s - %.2f %%" % (_time_set_word_count, (_time_set_word_count/_end*100))
+            print "Word Count From Set Time: %s - %.2f %%" % (_time_word_count_from_set, (_time_word_count_from_set/_end*100))
+            print "Set Loop Time: %s - %.2f %%" % (_time_set_loop, (_time_set_loop/_end*100))
+            print "Sorting Time: %s - %.2f %%" % (_time_sort, (_time_sort/_end*100))
+            print "\nOverall Time: %s\n\n" % _end
+
+        return ret
 
     def add_to_blacklist(self, word):
         if word and isinstance(word, str):
@@ -81,7 +142,6 @@ class Classifier():
             raise Exception('Can only check strings from blacklist.')
 
     def clean_keywords(self, words):
-        ret = []
         if isinstance(words, str):
             kws = words.split(" ")
         elif isinstance(words, list):
@@ -89,16 +149,9 @@ class Classifier():
         else:
             raise Exception('Can only clean String or List.');
 
-        for kw in kws:
-            kw = kw.lower()
-            kw = sub("[^a-z]", "", kw)
+        kws = [sub("[^a-z]", "", kw.lower()) for kw in kws if kw if len(kw) > self.max_str_len]
 
-            if kw and len(kw) > self.max_str_len:
-                kw = kw.lower()
-                if kw:
-                    ret.append(kw)
-
-        return ret
+        return kws
 
     def train(self, words, set):
         words = self.clean_keywords(words)
@@ -153,37 +206,29 @@ class Classifier():
 
     def get_set_word_count(self, sets):
         if sets:
-            tmp = self.r.hmget(self.namespace['sets'], sets)
-            ret = {}
-            if tmp:
-                i = 0
-                for r in tmp:
-                    ret[sets[i]] = int(r)
-                    i = i + 1
-
+            ret = {sets[self._next_index()]: self._none_check(v) for v in self.r.hmget(self.namespace['sets'], sets)}
+            self.index = 0
             return ret
         else:
             return 0
 
     def get_word_count_from_set(self, words, sets):
         if sets:
-            keys = []
-            for word in words:
-                for set in sets:
-                    keys.append("%s%s%s" % (word, self.namespace['delimiter'], set))
-
-            tmp = self.r.hmget(self.namespace['words'], keys)
-            ret = {}
-            if tmp:
-                i = 0
-                for key in keys:
-                    val = tmp[i]
-                    if val is None:
-                        val = 0
-                    else:
-                        val = int(val)
-                    ret[key] = val
-                    i = i + 1
+            keys = ["%s%s%s" % (word, self.namespace['delimiter'], set) for word in words for set in sets]
+            tmp = [self._none_check(v) for v in self.r.hmget(self.namespace['words'], keys)]
+            ret = {key: tmp[self._next_index()] for key in keys}
+            self.index = 0
             return ret
         else:
             return {}
+
+    def _next_index(self):
+        i = self.index
+        self.index += 1
+        return i
+
+    def _none_check(self, v):
+        if v is None:
+            return 0
+        else:
+            return int(v)

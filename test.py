@@ -30,7 +30,4 @@ b.train("With Walter Mazzarri announcing his decision to stand down as Napoli co
 b.train("After a meeting with sporting director Leonardo and Paris Saint-Germain owner Al-Khellaifi, Carlo Ancelotti has decided to finish his time with the club in favour of an expected move to Real Madrid.", "psg")
 '''
 
-start = time.time()
 print b.classify("steak pasta")
-end = time.time()
-print "\nElapsed Time: %s seconds" % (end - start)
