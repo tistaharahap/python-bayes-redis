@@ -39,19 +39,25 @@ The gear and spec used to test performance is below:
 - Intel Core i5 2.3 GHz
 - 8 GB PC-10600 DDR3 RAM
 - SSD
-- Redis v2.4.15 compiled from source
+- Redis v2.6.13 compiled from source
 - Python v2.7.2
 
 The data sets is as below:
 - 1,212 Sets
-- 308,607 Keywords
+- 311,525 Keywords
 
 Classifying Time:
-- 1 Keyword: 0.0722010135651 second
-- 2 Keywords: 0.194036006927 second
-- 3 Keywords: 0.35346698761 second
+- 1 Keyword - PHP @ 0.01428 second
+-- 0.0569310188293 second <Python v2.7.2 Mac>
+-- 0.178730964661 second <PyPy v2.0.2 Mac>
+- 2 Keywords - PHP @ 0.02171 second
+-- 0.0672879219055 second <Python v2.7.2 Mac>
+-- 0.226923942566 second <PyPy v2.0.2 Mac>
+- 3 Keywords - PHP @ 0.04062 second
+-- 0.088278055191 second <Python v2.7.2 Mac>
+-- 0.246510982513 second <PyPy v2.0.2 Mac>
 
 Optimization
 ------------
 
-The algorithm is optimized only in a macro level at the moment. Need to micro optimize the algorithm especially with Python's tuples, lists and sets. Still finding my way around them.
+Anything worthy being converted to a list/dict comprehension for
