@@ -89,9 +89,8 @@ class Classifier():
                 if (key in word_count_from_set.keys()) and word_count_from_set[key] > 0:
                     prob = float(word_count_from_set[key]) / float(set_word_counts[set])
                     psets.update({set: prob})
-
-                if psets.get(set) and not math.isinf(float(psets.get(set))) and psets.get(set) > 0:
-                    score[set] = psets[set]
+                    if not math.isinf(prob) and prob > 0:
+                        score[set] = prob
         if self.debug:
             _time_set_loop = time.time() - _start_set_loop
 
