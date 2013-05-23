@@ -6,6 +6,8 @@ b = BayesRedis({
     'port': 6379,
     'db': 0
 })
+
+# Uncomment Below to train
 '''
 b.train("Arsenal are targeting a club-record 22.5 million bid for Real Madrid striker Gonzalo Higuain this summer. Arsene Wenger has been given 82.5m to spend in the upcoming transfer window.", "arsenal")
 b.train("Napoli are looking at bringing in Rafa Benitez to coach next term and are weighing up the option of bidding for Fernando Torres alongside the Spanish trainer. The Italian club are also said to be keeping tabs on Manchester City's Edin Dzeko.", "mancity")
@@ -26,4 +28,5 @@ b.train("After the meeting in which Carlo Ancelotti expressed his desire to leav
 b.train("With Walter Mazzarri announcing his decision to stand down as Napoli coach, the club have acted quickly and will meet with outgoing Chelsea manager Rafael Benitez over potentially taking over the role.", "napoli")
 b.train("After a meeting with sporting director Leonardo and Paris Saint-Germain owner Al-Khellaifi, Carlo Ancelotti has decided to finish his time with the club in favour of an expected move to Real Madrid.", "psg")
 '''
+
 print b.classify("arsene wenger")

@@ -23,3 +23,12 @@ Optimization
 ------------
 
 The algorithm is optimized only in a macro level as of [v0.1.0](https://github.com/tistaharahap/python-bayes-redis/tree/v0.1.0). I am still new in Python and micro optimizations will follow soon.
+
+External Dependencies
+---------------------
+- Redis <http://redis.io>
+
+Use Examples
+------------
+
+Please take a look at [test.py](https://github.com/tistaharahap/python-bayes-redis/blob/master/test.py).
