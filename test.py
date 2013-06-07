@@ -31,5 +31,5 @@ b.train("After a meeting with sporting director Leonardo and Paris Saint-Germain
 '''
 
 a = time.time()
-print b.classify("steak pasta")
+print b.classify("steak pasta beef")
 print "\nElapsed time: %f seconds" % (time.time() - a)
