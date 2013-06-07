@@ -24,6 +24,32 @@ External Dependencies
 - Redis <http://redis.io>
 - [Optional - For Data Import only] MySQL Python Connector <http://dev.mysql.com/doc/connector-python/en/index.html>
 
+Installation and Configuration
+------------------------------
+
+```bash
+$ sudo pip install bayesredis
+```
+
+Expecting Redis is installed locally:
+
+```python
+from BayesRedis import Classifier
+
+bayes = Classifier({
+    'host': '127.0.0.1',
+    'port': 6379,
+    'db': 0
+})
+```
+
+The 2 main methods are classify and train like so:
+
+```python
+bayes.train('block of text', 'set');
+bayes.classify('query')
+```
+
 Use Examples
 ------------
 
@@ -47,17 +73,11 @@ The data sets is as below:
 - 311,525 Keywords
 
 Classifying Time:
-- 1 Keyword - PHP @ 0.01428 second
--- 0.0569310188293 second <Python v2.7.2 Mac>
--- 0.178730964661 second <PyPy v2.0.2 Mac>
-- 2 Keywords - PHP @ 0.02171 second
--- 0.0672879219055 second <Python v2.7.2 Mac>
--- 0.226923942566 second <PyPy v2.0.2 Mac>
-- 3 Keywords - PHP @ 0.04062 second
--- 0.088278055191 second <Python v2.7.2 Mac>
--- 0.246510982513 second <PyPy v2.0.2 Mac>
+- 1 Keyword - PHP @ 0.01428 second - Python 2.7.2 Mac @ 0.052354
+- 2 Keywords - PHP @ 0.02171 second - Python 2.7.2 Mac @ 0.066162
+- 3 Keywords - PHP @ 0.04062 second - Python 2.7.2 Mac @ 0.078659
 
 Optimization
 ------------
 
-Anything worthy being converted to a list/dict comprehension for
+Puzzled and still figuring out where to begin.
