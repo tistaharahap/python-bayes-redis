@@ -73,9 +73,9 @@ The data sets is as below:
 - 311,525 Keywords
 
 Classifying Time:
-- 1 Keyword - PHP @ 0.01428 second - Python 2.7.2 Mac @ 0.052354
-- 2 Keywords - PHP @ 0.02171 second - Python 2.7.2 Mac @ 0.066162
-- 3 Keywords - PHP @ 0.04062 second - Python 2.7.2 Mac @ 0.078659
+- 1 Keyword - PHP @ 0.01428 second - Python 2.7.2 Mac @ 0.010837
+- 2 Keywords - PHP @ 0.02171 second - Python 2.7.2 Mac @ 0.016105
+- 3 Keywords - PHP @ 0.04062 second - Python 2.7.2 Mac @ 0.022513
 
 Optimization
 ------------
