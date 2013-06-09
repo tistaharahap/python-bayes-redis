@@ -12,6 +12,16 @@ There is a really good video piece in Youtube [here](http://www.youtube.com/watc
 
 Another great piece about the algorithm explained in plain English is by [Alexander Nedelcu](https://www.bionicspirit.com/pages/about.html) with his [blog post here](http://bionicspirit.com/blog/2012/02/09/howto-build-naive-bayes-classifier.html).
 
+Cython
+------
+
+Parts of the code where it is applicable are optimized to leverage Cython Static Typing. The speed bump by doing so are notably significant. Please take a look below for benchmark timings.
+
+How To Develop
+--------------
+
+If you are cloning the source code from Github or by downloading from PyPi, please have a look at <code>BayesRedis/__init__.pyx</code> for the main source file.
+
 Implementation
 --------------
 
@@ -73,11 +83,7 @@ The data sets is as below:
 - 311,525 Keywords
 
 Classifying Time:
-- 1 Keyword - PHP @ 0.01428 second - Python 2.7.2 Mac @ 0.010837
-- 2 Keywords - PHP @ 0.02171 second - Python 2.7.2 Mac @ 0.016105
-- 3 Keywords - PHP @ 0.04062 second - Python 2.7.2 Mac @ 0.022513
-
-Optimization
-------------
-
-Puzzled and still figuring out where to begin.
+- 1 Keyword - PHP @ 0.01428 second - Python 2.7.2 Mac @ 0.008646 second
+- 2 Keywords - PHP @ 0.02171 second - Python 2.7.2 Mac @ 0.012975 second
+- 3 Keywords - PHP @ 0.04062 second - Python 2.7.2 Mac @ 0.018261 second
+- 65 Keywords - Python 2.7.2 Mac @ 0.342203 second

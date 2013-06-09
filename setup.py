@@ -6,10 +6,10 @@ def readme():
 
 setup(ext_modules=[Extension("BayesRedis", ["BayesRedis/__init__.c"])],
       name='bayesredis',
-      version='1.1.0',
+      version='1.2.0',
       description='A Simple Naive Bayes Classifier in Python',
       long_description=readme(),
-      keywords='bayes naive classifier redis cython',
+      keywords='bayes naive classifier redis cython machine learning',
       url='https://github.com/tistaharahap/python-bayes-redis',
       author='Batista Harahap',
       author_email='batista@bango29.com',
