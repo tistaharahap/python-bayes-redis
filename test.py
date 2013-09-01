@@ -8,7 +8,7 @@ b = Classifier({
     'db': 0
 })
 
-# Uncomment Below to train
+# Training examples
 '''
 b.train("Arsenal are targeting a club-record 22.5 million bid for Real Madrid striker Gonzalo Higuain this summer. Arsene Wenger has been given 82.5m to spend in the upcoming transfer window.", "arsenal")
 b.train("Napoli are looking at bringing in Rafa Benitez to coach next term and are weighing up the option of bidding for Fernando Torres alongside the Spanish trainer. The Italian club are also said to be keeping tabs on Manchester City's Edin Dzeko.", "mancity")
@@ -30,4 +30,11 @@ b.train("With Walter Mazzarri announcing his decision to stand down as Napoli co
 b.train("After a meeting with sporting director Leonardo and Paris Saint-Germain owner Al-Khellaifi, Carlo Ancelotti has decided to finish his time with the club in favour of an expected move to Real Madrid.", "psg")
 '''
 
-print b.classify("steak pasta")
+a = time.time()
+keywords = "Salah satu Oakley store yang cukup nyaman menurut gw, koleksinya juga lumayan baik dan yang paling enak adalah tempatnya sepi, jadi kalau mau bilang \"wah mahal juga ya\" enggak tengsin banget. Pilihan kacamata nya juga update banget mulai dari yang pake polarized sampe yang biasa banyak bener pilihannya. Nah, jangan bawa-bawa harga kalo disini, harga sih emang udah standard Oakley tapi harga emang enggak bohong."
+for i in range(100):
+    b.classify(keywords)
+total = time.time() - a
+print "\nNumber of keywords classified: %d" % len(keywords.split(" "))
+print "Elapsed time after %d iterations: %f seconds" % (i+1, total)
+print "Average per ops: %f seconds" % (total / (i+1))

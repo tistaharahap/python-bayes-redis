@@ -1,7 +1,7 @@
 import redis, math, operator, time
 from re import sub
 
-class Classifier():
+cdef class Classifier(object):
     reds = {
         'host': 'localhost',
         'port': 6379,
@@ -16,11 +16,13 @@ class Classifier():
         'delimiter': '_--%%--_',
         'wordcount': '---count---'
     }
-    max_str_len = 2
-    r = None
-    index = 0
 
-    debug = True
+    cdef public int max_str_len
+    cdef public int index
+
+    cdef public r
+
+    debug = False
 
     def __init__(self, args=None):
         if args is not None:
@@ -32,13 +34,16 @@ class Classifier():
         if self.r is None:
             raise Exception('Redis is not properly setup. Check redis configs?')
 
+        self.max_str_len = 2
+        self.index = 0
+
         # Namespacing
         for key in self.namespace:
             if key not in ['global', 'delimiter', 'wordcount']:
                 self.namespace[key] = '%s-%s' % (self.namespace['global'], self.namespace[key])
 
     def classify(self, words, count=10):
-        _start = 0.0
+        cdef float _start = 0.0
 
         if self.debug:
             print "Debugging is enabled\n"
@@ -46,61 +51,63 @@ class Classifier():
 
         score = {}
 
-        _start_clean = 0.0
-        _time_clean = 0.0
+        cdef float _start_clean = 0.0
+        cdef float _time_clean = 0.0
         if self.debug:
             _start_clean = time.time()
         keywords = self.clean_keywords(words)
         if self.debug:
             _time_clean = time.time() - _start_clean
 
-        _start_all_sets = 0.0
-        _time_all_sets = 0.0
+        cdef float _start_all_sets = 0.0
+        cdef float _time_all_sets = 0.0
         if self.debug:
             _start_all_sets = time.time()
         sets = self.get_all_sets()
         if self.debug:
             _time_all_sets = time.time() - _start_all_sets
 
-        _start_set_word_count = 0.0
-        _time_set_word_count = 0.0
+        cdef float _start_set_word_count = 0.0
+        cdef float _time_set_word_count = 0.0
         if self.debug:
             _start_set_word_count = time.time()
         set_word_counts = self.get_set_word_count(sets)
         if self.debug:
             _time_set_word_count = time.time() - _start_set_word_count
 
-        _start_word_count_from_set = 0.0
-        _time_word_count_from_set = 0.0
+        cdef float _start_word_count_from_set = 0.0
+        cdef float _time_word_count_from_set = 0.0
         if self.debug:
             _start_word_count_from_set = time.time()
         word_count_from_set = self.get_word_count_from_set(keywords, sets)
         if self.debug:
             _time_word_count_from_set = time.time() - _start_word_count_from_set
 
-        _start_set_loop = 0.0
-        _time_set_loop = 0.0
+        cdef float _start_set_loop = 0.0
+        cdef float _time_set_loop = 0.0
         if self.debug:
             _start_set_loop = time.time()
+
+        cdef float prob
         for set in sets:
             for word in keywords:
                 key = "%s%s%s" % (word, self.namespace['delimiter'], set)
                 if word_count_from_set[key] and word_count_from_set[key] > 0:
-                    prob = float(word_count_from_set[key]) / float(set_word_counts[set])
+                    prob = (float(word_count_from_set[key]) / float(set_word_counts[set]))
                     if not math.isinf(prob) and prob > 0:
                         score[set] = prob
         if self.debug:
             _time_set_loop = time.time() - _start_set_loop
 
-        _start_sort = 0.0
-        _time_sort = 0.0
+        cdef float _start_sort = 0.0
+        cdef float _time_sort = 0.0
         if self.debug:
             _start_sort = time.time()
         ret = sorted(score.iteritems(), key=operator.itemgetter(1), reverse=True)[:count]
         if self.debug:
             _time_sort = time.time() - _start_sort
 
-        _end = time.time() - _start
+        cdef float _end = time.time() - _start
 
         if self.debug:
             print "Debug Statistics"
@@ -190,13 +197,13 @@ class Classifier():
     def get_all_sets(self):
         return self.r.hkeys(self.namespace['sets'])
 
-    def get_set_count(self):
+    cdef int get_set_count(self):
         return self.r.hlen(self.namespace['sets'])
 
     def get_word_count(self, words):
         return self.r.hmget(self.namespace['words'], words)
 
-    def get_all_words_count(self):
+    cdef int get_all_words_count(self):
         return self.r.hget(self.namespace['wordcount'], self.namespace['wordcount'])
 
     def get_set_word_count(self, sets):
@@ -217,7 +224,7 @@ class Classifier():
 
         return ret
 
-    def _next_index(self):
+    cdef int _next_index(self):
         i = self.index
         self.index += 1
         return i

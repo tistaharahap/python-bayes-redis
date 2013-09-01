@@ -12,6 +12,16 @@ There is a really good video piece in Youtube [here](http://www.youtube.com/watc
 
 Another great piece about the algorithm explained in plain English is by [Alexander Nedelcu](https://www.bionicspirit.com/pages/about.html) with his [blog post here](http://bionicspirit.com/blog/2012/02/09/howto-build-naive-bayes-classifier.html).
 
+Cython
+------
+
+Parts of the code where it is applicable are optimized to leverage Cython Static Typing. The speed bump by doing so are notably significant. Please take a look below for benchmark timings.
+
+How To Develop
+--------------
+
+If you are cloning the source code from Github or by downloading from PyPi, please have a look at <code>BayesRedis/__init__.pyx</code> for the main source file.
+
 Implementation
 --------------
 
@@ -23,6 +33,32 @@ External Dependencies
 ---------------------
 - Redis <http://redis.io>
 - [Optional - For Data Import only] MySQL Python Connector <http://dev.mysql.com/doc/connector-python/en/index.html>
+
+Installation and Configuration
+------------------------------
+
+```bash
+$ sudo pip install bayesredis
+```
+
+Expecting Redis is installed locally:
+
+```python
+from BayesRedis import Classifier
+
+bayes = Classifier({
+    'host': '127.0.0.1',
+    'port': 6379,
+    'db': 0
+})
+```
+
+The 2 main methods are classify and train like so:
+
+```python
+bayes.train('block of text', 'set');
+bayes.classify('query')
+```
 
 Use Examples
 ------------
@@ -47,17 +83,7 @@ The data sets is as below:
 - 311,525 Keywords
 
 Classifying Time:
-- 1 Keyword - PHP @ 0.01428 second
--- 0.0569310188293 second <Python v2.7.2 Mac>
--- 0.178730964661 second <PyPy v2.0.2 Mac>
-- 2 Keywords - PHP @ 0.02171 second
--- 0.0672879219055 second <Python v2.7.2 Mac>
--- 0.226923942566 second <PyPy v2.0.2 Mac>
-- 3 Keywords - PHP @ 0.04062 second
--- 0.088278055191 second <Python v2.7.2 Mac>
--- 0.246510982513 second <PyPy v2.0.2 Mac>
-
-Optimization
-------------
-
-Anything worthy being converted to a list/dict comprehension for
+- 1 Keyword - PHP @ 0.01428 second - Python 2.7.2 Mac @ 0.008646 second
+- 2 Keywords - PHP @ 0.02171 second - Python 2.7.2 Mac @ 0.012975 second
+- 3 Keywords - PHP @ 0.04062 second - Python 2.7.2 Mac @ 0.018261 second
+- 65 Keywords - Python 2.7.2 Mac @ 0.342203 second

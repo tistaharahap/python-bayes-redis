@@ -1,2 +1,6 @@
 .idea
+build
 *.pyc
+MANIFEST
+*.egg-info
+dist
