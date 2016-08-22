@@ -6,7 +6,7 @@ def readme():
 
 setup(ext_modules=[Extension("BayesRedis", ["BayesRedis/__init__.c"])],
       name='bayesredis',
-      version='1.2.0',
+      version='1.2.1',
       description='A Simple Naive Bayes Classifier in Python',
       long_description=readme(),
       keywords='bayes naive classifier redis cython machine learning',
