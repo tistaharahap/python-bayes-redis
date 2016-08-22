@@ -151,6 +151,7 @@ cdef class Classifier(object):
 
     def clean_keywords(self, words):
         if isinstance(words, str):
+            kws.replace('\n', ' ')
             kws = words.split(" ")
         elif isinstance(words, list):
             kws = words
