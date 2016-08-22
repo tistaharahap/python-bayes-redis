@@ -30,7 +30,7 @@ cdef class Classifier(object):
             self.reds['port'] = args['port']
             self.reds['db'] = args['db']
 
-        self.r = redis.StrictRedis(host=self.reds['host'], port=self.reds['port'], db=self.reds['db'])
+        self.r = redis.ConnectionPool(host=self.reds['host'], port=self.reds['port'], db=self.reds['db'])
         if self.r is None:
             raise Exception('Redis is not properly setup. Check redis configs?')
 
@@ -41,6 +41,10 @@ cdef class Classifier(object):
         for key in self.namespace:
             if key not in ['global', 'delimiter', 'wordcount']:
                 self.namespace[key] = '%s-%s' % (self.namespace['global'], self.namespace[key])
+
+    def __del__(self):
+        if self.r:
+            self.r.disconnect()
 
     def classify(self, words, count=10):
         cdef float _start = 0.0
