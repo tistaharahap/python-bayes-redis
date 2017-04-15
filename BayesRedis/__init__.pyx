@@ -94,12 +94,14 @@ cdef class Classifier(object):
 
         cdef float prob
         for set in sets:
+            totalprob = float(0)
             for word in keywords:
                 key = "%s%s%s" % (word, self.namespace['delimiter'], set)
                 if word_count_from_set[key] and word_count_from_set[key] > 0:
                     prob = (float(word_count_from_set[key]) / float(set_word_counts[set]))
                     if not math.isinf(prob) and prob > 0:
-                        score[set] = prob
+                        totalprob += prob
+            score[set] = totalprob
         if self.debug:
             _time_set_loop = time.time() - _start_set_loop
 
